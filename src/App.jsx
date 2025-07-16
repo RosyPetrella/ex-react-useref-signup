@@ -10,20 +10,16 @@ function App() {
     descrizione: "",
   });
 
-  const [errors, setErrors] = useState({
-    username: "",
-  });
-
   const letters = "abcdefghijklmnopqrstuvwxyz";
   const numbers = "0123456789";
   const symbols = "!@#$%^&*()-_=+[]{}|;:'\"\\,.<>?/`~";
 
   const [usernameValid, setUsernameValid] = useState(null);
 
+  const validChars = letters + numbers;
+
   function validateUsername(username) {
     if (username.length < 6) return false;
-
-    const validChars = letters + numbers;
 
     // Se username contiene almeno un carattere NON valido, ritorna false
     const hasInvalidChar = username
@@ -33,6 +29,19 @@ function App() {
 
     return !hasInvalidChar;
   }
+
+  function validatePassword(password) {
+    if (!password.split("").some((char) => letters.includes(char)))
+      return false;
+    if (!password.split("").some((char) => numbers.includes(char)))
+      return false;
+    if (!password.split("").some((char) => symbols.includes(char)))
+      return false;
+    if (password.length < 8) return false;
+    return true;
+  }
+
+  const [pswValid, setPswValid] = useState(null);
 
   return (
     <>
@@ -80,8 +89,19 @@ function App() {
           type="password"
           placeholder="Password"
           value={form.password}
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
+          onChange={(e) => {
+            setForm({ ...form, password: e.target.value }),
+              setPswValid(validatePassword(e.target.value));
+          }}
         />
+        {pswValid ? (
+          <p style={{ color: "green" }}>Password valida!</p>
+        ) : (
+          <p style={{ color: "red" }}>
+            Password deve essere almeno 8 caratteri, 1 numero e 1 carattere
+            speciale.
+          </p>
+        )}
         <select
           name="specializzazione"
           id=""
