@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 function App() {
   const [form, setForm] = useState({
@@ -10,13 +10,16 @@ function App() {
     descrizione: "",
   });
 
+  const [pswValid, setPswValid] = useState(null);
+  const [usernameValid, setUsernameValid] = useState(null);
+  const [descValid, setDescValid] = useState(null);
+
   const letters = "abcdefghijklmnopqrstuvwxyz";
   const numbers = "0123456789";
   const symbols = "!@#$%^&*()-_=+[]{}|;:'\"\\,.<>?/`~";
-
-  const [usernameValid, setUsernameValid] = useState(null);
-
   const validChars = letters + numbers;
+
+  const refDesc = useRef("");
 
   function validateUsername(username) {
     if (username.length < 6) return false;
@@ -41,10 +44,6 @@ function App() {
     return true;
   }
 
-  const [pswValid, setPswValid] = useState(null);
-
-  const [descValid, setDescValid] = useState(null);
-
   function validateDesc(descrizione) {
     const trimmed = descrizione.trim();
     if (trimmed.length < 100 || trimmed.length > 1000) return false;
@@ -56,12 +55,17 @@ function App() {
       <form
         onSubmit={(e) => {
           e.preventDefault();
+
+          const descrizioneValue = refDesc.current.value;
+          const isDescValid = validateDesc(descrizioneValue);
+          setDescValid(isDescValid);
+
           if (
             form.nome.trim() === "" ||
             form.username.trim() === "" ||
             form.password.trim() === "" ||
             form.specializzazione === "" ||
-            form.descrizione.trim() === "" ||
+            descrizioneValue.trim() === "" ||
             Number(form.anniEsperienza) <= 0
           ) {
             alert("Compila tutti i campi correttamente!");
@@ -128,21 +132,13 @@ function App() {
           value={form.anniEsperienza}
           onChange={(e) => setForm({ ...form, anniEsperienza: e.target.value })}
         />
-        <textarea
-          placeholder="descrizione"
-          value={form.descrizione}
-          onChange={(e) => {
-            setForm({ ...form, descrizione: e.target.value });
-            setDescValid(validateDesc(e.target.value));
-          }}
-        />
-        {descValid ? (
-          <p style={{ color: "green" }}>Testo valido!</p>
-        ) : (
+        <textarea placeholder="descrizione" ref={refDesc} />
+        {descValid === false && (
           <p style={{ color: "red" }}>
             Il testo deve essere più lungo di 100 caratteri e più corto di 1000
           </p>
         )}
+        {descValid === true && <p style={{ color: "green" }}>Testo valido!</p>}
         <button type="submit">Invia</button>
       </form>
     </>
@@ -151,17 +147,7 @@ function App() {
 
 export default App;
 
-// Crea un form di registrazione con i seguenti campi controllati (gestiti con useState):
-// ✅ Nome completo (input di testo)
-// ✅ Username (input di testo)
-// ✅ Password (input di tipo password)
-// ✅ Specializzazione (select con opzioni: "Full Stack", "Frontend", "Backend")
-// ✅ Anni di esperienza (input di tipo number)
-// ✅ Breve descrizione sullo sviluppatore (textarea)
-
-// Aggiungi una validazione al submit, verificando che:
-// Tutti i campi siano compilati
-// L'input Anni di esperienza sia un numero positivo
-// La Specializzazione sia selezionata
-
-// Al submit, se il form è valido, stampa in console i dati.
+// Non tutti i campi del form necessitano di essere aggiornati a ogni carattere digitato. Alcuni di essi non influenzano direttamente l’interfaccia mentre l’utente li compila, quindi è possibile gestirli in modo più efficiente.
+// Analizza il form: Identifica quali campi devono rimanere controllati e quali invece possono essere non controllati senza impattare l’esperienza utente.
+// Converti i campi non controllati: Usa useRef() per gestirli e recuperare il loro valore solo al momento del submit.
+// Assicurati che la validazione continui a funzionare: Anche se un campo non è controllato, deve comunque essere validato correttamente quando l’utente invia il form.
