@@ -10,6 +10,30 @@ function App() {
     descrizione: "",
   });
 
+  const [errors, setErrors] = useState({
+    username: "",
+  });
+
+  const letters = "abcdefghijklmnopqrstuvwxyz";
+  const numbers = "0123456789";
+  const symbols = "!@#$%^&*()-_=+[]{}|;:'\"\\,.<>?/`~";
+
+  const [usernameValid, setUsernameValid] = useState(null);
+
+  function validateUsername(username) {
+    if (username.length < 6) return false;
+
+    const validChars = letters + numbers;
+
+    // Se username contiene almeno un carattere NON valido, ritorna false
+    const hasInvalidChar = username
+      .toLowerCase()
+      .split("")
+      .some((char) => !validChars.includes(char));
+
+    return !hasInvalidChar;
+  }
+
   return (
     <>
       <form
@@ -32,14 +56,26 @@ function App() {
           type="text"
           placeholder="Nome"
           value={form.nome}
-          onChange={(e) => setForm({ ...form, nome: e.target.value })}
+          onChange={(e) => {
+            setForm({ ...form, nome: e.target.value });
+          }}
         />
         <input
           type="text"
           placeholder="Username"
           value={form.username}
-          onChange={(e) => setForm({ ...form, username: e.target.value })}
+          onChange={(e) => {
+            setForm({ ...form, username: e.target.value });
+            setUsernameValid(validateUsername(e.target.value));
+          }}
         />
+        {usernameValid ? (
+          <p style={{ color: "green" }}>Username valido!</p>
+        ) : (
+          <p style={{ color: "red" }}>
+            Username deve essere almeno 6 caratteri e solo lettere o numeri.
+          </p>
+        )}
         <input
           type="password"
           placeholder="Password"
