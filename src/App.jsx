@@ -43,6 +43,14 @@ function App() {
 
   const [pswValid, setPswValid] = useState(null);
 
+  const [descValid, setDescValid] = useState(null);
+
+  function validateDesc(descrizione) {
+    const trimmed = descrizione.trim();
+    if (trimmed.length < 100 || trimmed.length > 1000) return false;
+    return true;
+  }
+
   return (
     <>
       <form
@@ -123,8 +131,18 @@ function App() {
         <textarea
           placeholder="descrizione"
           value={form.descrizione}
-          onChange={(e) => setForm({ ...form, descrizione: e.target.value })}
+          onChange={(e) => {
+            setForm({ ...form, descrizione: e.target.value });
+            setDescValid(validateDesc(e.target.value));
+          }}
         />
+        {descValid ? (
+          <p style={{ color: "green" }}>Testo valido!</p>
+        ) : (
+          <p style={{ color: "red" }}>
+            Il testo deve essere più lungo di 100 caratteri e più corto di 1000
+          </p>
+        )}
         <button type="submit">Invia</button>
       </form>
     </>
